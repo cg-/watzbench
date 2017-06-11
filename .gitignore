@@ -1,0 +1,5 @@
+contiki-sky.*
+obj_sky
+symbols.*
+watzbench.sky
+*.native
