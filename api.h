@@ -12,7 +12,7 @@ additional information and descriptions are in the c file
 #include <stdlib.h>
 #include <stdio.h>
 #include <cfs/cfs.h>
-
+#include <cfs/cfs-coffee.h>
 
 /*
 supported filesystems
@@ -21,12 +21,14 @@ once an API has been created, add it as an extern here to allow watzbench
 to use it.
 */
 extern struct API* CFS;
+extern struct API* Coffee;
 
 /*
 API is a struct that will control the interface with the underlying
 filesystem
 */
 struct API{
+    void (*init)();
     int (*create_file)(char*);
     int (*delete_file)(char*);
     int (*create_dir)(char*);
@@ -38,6 +40,7 @@ struct API{
 };
 
 struct API* new_api(
+    void (*init)(),
     int(*create_f)(char*), 
     int(*delete_f)(char*), 
     int(*create_d)(char*),

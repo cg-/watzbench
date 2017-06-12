@@ -18,8 +18,7 @@ struct Test* new_test(
         char* test_name,
         int(*prepare_func)(struct Test* test),
         int(*run_func)(struct Test* test),
-        int(*teardown_func)(struct Test* test),
-        void(*report_func)(char* report, struct Test* test)
+        int(*teardown_func)(struct Test* test)
     ){
     void* t = malloc(sizeof(struct Test));
     struct Test* test_ptr = (struct Test*)t;
@@ -31,7 +30,6 @@ struct Test* new_test(
     test_ptr->prepare = prepare_func;
     test_ptr->run = run_func;
     test_ptr->teardown = teardown_func;
-    test_ptr->report = report_func;
     return test_ptr;
 }
 
@@ -73,6 +71,7 @@ run_test actually executes the test.
 */
 void run_test(struct API* api_ptr, struct Test* test){
     test->api = api_ptr;
+    test->api->init();
     int err = test->prepare(test);
     check(err, "error in prepare function", TRUE);
     test->start_time = clock_time();
@@ -81,9 +80,6 @@ void run_test(struct API* api_ptr, struct Test* test){
     check(err, "error in test function", TRUE);
     err = test->teardown(test);
     check(err, "error in teardown function", TRUE);
-    char report[REPORT_SIZE];
-    test->report(report, test);
-    printf("NAME: %s REPORT: %s\n", test->name, report);
     test->api = NULL;
 }
 
@@ -106,7 +102,7 @@ int file_metadata_create_test_prepare(struct Test* test){
 int file_metadata_create_test_run(struct Test* test){
     char filename[MAX_FILENAME_SIZE];
     for(int i = 0; i < test->params->count; i++){
-        itoa(i,filename,10);
+        sprintf(filename, "%d", i);
         test->api->create_file(filename);
     }
     return 0;
@@ -115,7 +111,7 @@ int file_metadata_create_test_run(struct Test* test){
 int file_metadata_create_test_cleanup(struct Test* test){
     char filename[MAX_FILENAME_SIZE];
     for(int i = 0; i < test->params->count; i++){
-        itoa(i,filename,10);
+        sprintf(filename, "%d", i);
         test->api->delete_file(filename);
     }
 
@@ -124,17 +120,13 @@ int file_metadata_create_test_cleanup(struct Test* test){
     return 0;
 }
 
-void file_metadata_create_test_report(char* report, struct Test* test){
-    sprintf(report, "START: [%u] END: [%u]", (uint)test->start_time, (uint)test->completion_time);
-}
-
 // DELETE FILES
 int file_metadata_delete_test_prepare(struct Test* test){
     char filename[MAX_FILENAME_SIZE];
     test->params = new_test_params();
     test->params->count = MAX_FILES;
     for(int i = 0; i < test->params->count; i++){
-        itoa(i,filename,10);
+        sprintf(filename, "%d", i);
         test->api->create_file(filename);
     }
     return 0;
@@ -143,7 +135,7 @@ int file_metadata_delete_test_prepare(struct Test* test){
 int file_metadata_delete_test_run(struct Test* test){
     char filename[MAX_FILENAME_SIZE];
     for(int i = 0; i < test->params->count; i++){
-        itoa(i,filename,10);
+        sprintf(filename, "%d", i);
         test->api->delete_file(filename);
     }
     return 0;
@@ -153,10 +145,6 @@ int file_metadata_delete_test_cleanup(struct Test* test){
     free_test_params(test->params);
     test->params = NULL;
     return 0;
-}
-
-void file_metadata_delete_test_report(char* report, struct Test* test){
-    sprintf(report, "START: [%u] END: [%u]", (uint)test->start_time, (uint)test->completion_time);
 }
 
 // THROUGHPUT
@@ -185,10 +173,6 @@ int throughout_seq_read_cleanup(struct Test* test){
     return 0;
 }
 
-void throughout_seq_read_report(char* report, struct Test* test){
-    sprintf(report, "START: [%u] END: [%u]", (uint)test->start_time, (uint)test->completion_time);
-}
-
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 Other Functions
 
@@ -206,22 +190,19 @@ void init_test(){
         "File Metadata Create File Test",
         file_metadata_create_test_prepare,
         file_metadata_create_test_run,
-        file_metadata_create_test_cleanup,
-        file_metadata_create_test_report
+        file_metadata_create_test_cleanup
     );
     FileMetaDataDelete= new_test(
         "File Metadata Delete File Test",
         file_metadata_delete_test_prepare,
         file_metadata_delete_test_run,
-        file_metadata_delete_test_cleanup,
-        file_metadata_delete_test_report
+        file_metadata_delete_test_cleanup
     );
     ThroughputSeqRead= new_test(
         "Throughput Sequential Read Test",
         throughout_seq_read_prepare,
         throughout_seq_read_run,
-        throughout_seq_read_cleanup,
-        throughout_seq_read_report
+        throughout_seq_read_cleanup
     );
     return;
 }
@@ -232,5 +213,6 @@ cleanup_test is called before the program exits
 void cleanup_test(){
     free_test(FileMetaDataCreate);
     free_test(FileMetaDataDelete);
+    free_test(ThroughputSeqRead);
     return;
 }

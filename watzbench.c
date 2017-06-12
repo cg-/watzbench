@@ -15,12 +15,10 @@ UCSC - CMPE259 - Spring 2017 - Cole Grim
 #include "test.h"
 #include "common.h"
 
-const int MAX_FILES = 1; // The maximum number of files to create
-const int MAX_FILENAME_SIZE = 50; // Max number of characters in a filename (size of buffer)
+const int MAX_FILES = 100; // The maximum number of files to create
+const int MAX_FILENAME_SIZE = 10; // Max number of characters in a filename (size of buffer)
 const int MAX_WRITE_BYTES = 4096; // Max filesize to write
-const int BYTE_STEP = 128; // Steps of filesizes to create
 const int DEBUGGING_ENABLED = 1; // Debugging messages
-const int REPORT_SIZE = 1000; // Size of report string
 
 void init(){
     log_info("program starting");
@@ -44,7 +42,12 @@ PROCESS_THREAD(watzbench_process, ev, data) {
     printf("Important Device Information:\n");
     printf("1 second = %lu ticks.\n\n", CLOCK_SECOND);
 
-    run_test(CFS, ThroughputSeqRead);
+
+    for(int i = 0; i < 100; i++){
+        run_test(CFS, FileMetaDataCreate);
+        printf("start: %u, stop: %u, time: %u\n", (uint)FileMetaDataCreate->start_time,(uint)FileMetaDataCreate->completion_time,((uint)FileMetaDataCreate->completion_time - (uint)FileMetaDataCreate->start_time));
+    }
+
 
     cleanup();
     PROCESS_END();

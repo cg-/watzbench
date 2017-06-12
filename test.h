@@ -16,8 +16,6 @@ extern struct Test* ThroughputSeqRead;
 extern const int MAX_FILES;
 extern const int MAX_FILENAME_SIZE;
 extern const int MAX_WRITE_BYTES;
-extern const int BYTE_STEP;
-extern const int REPORT_SIZE;
 
 /*
 Test is a struct that represents the various parts of a benchmarking
@@ -33,9 +31,6 @@ tests have 3 major parts--
 
 the TestParams structure can be modified to allow paramaters to be passed 
 to the tests.
-
-a report function should also be specified allowing the test to output
-data
 */
 struct Test{
     struct API* api;
@@ -46,15 +41,13 @@ struct Test{
     int(*prepare)(struct Test* test);
     int(*run)(struct Test* test);
     int(*teardown)(struct Test* test);
-    void(*report)(char* report, struct Test* test);
 };
 
 struct Test* new_test(
     char*,
     int(*prepare_func)(struct Test* test),
     int(*run_func)(struct Test* test),
-    int(*teardown_func)(struct Test* test),
-    void(*report_func)(char* report, struct Test* test)
+    int(*teardown_func)(struct Test* test)
 );
 void free_test(struct Test* test);
 void run_test(struct API*, struct Test*);

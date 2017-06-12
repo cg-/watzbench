@@ -35,7 +35,7 @@ void check(int err, char* msg, int fatal){
     if(err == -1){
         log_error(msg);
         if(fatal == 1){
-            exit(-1);
+            return;
         }
     }
 }
