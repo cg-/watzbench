@@ -3,9 +3,6 @@ common.c contains useful functions that are used throughout watzbench
 */
 #include "common.h"
 
-// DEBUGGING_ENABLED is a flag that will disable the info messages
-int DEBUGGING_ENABLED = 1;
-
 /*
 log_info is a debugging function that will display messages to stdout
 if DEBUGGING_ENABLED is set to 1.

@@ -23,17 +23,25 @@ new_api is a constructor for the API struct. function pointers need to be set
 to allow watzbench to run its tests>
 */
 struct API* new_api(
-        int(*create_f)(char*), 
-        int(*delete_f)(char*), 
-        int(*create_d)(char*),
-        int(*delete_d)(char*)
+        int(*create_file_func)(char*), 
+        int(*delete_file_func)(char*), 
+        int(*create_dir_func)(char*),
+        int(*delete_dir_func)(char*),
+        int(*open_get_fd_func)(char*),
+        int(*write_at_func)(int, int, int, char*),
+        int(*read_at_func)(int, int, int, char*),
+        int(*close_fd_func)(int)
     ){
     void* t = malloc(sizeof(struct API));
     struct API* api_ptr = (struct API*)t;
-    api_ptr->create_file = create_f;
-    api_ptr->delete_file = delete_f;
-    api_ptr->create_dir = create_d;
-    api_ptr->delete_dir = delete_d;
+    api_ptr->create_file = create_file_func;
+    api_ptr->delete_file = delete_file_func;
+    api_ptr->create_dir = create_dir_func;
+    api_ptr->delete_dir = delete_dir_func;
+    api_ptr->open_get_fd = open_get_fd_func;
+    api_ptr->write_at = write_at_func;
+    api_ptr->read_at = read_at_func;
+    api_ptr->close_fd = close_fd_func;
     return api_ptr;
 }
 
@@ -56,7 +64,6 @@ int cfs_create_file(char* name){
     }
     cfs_close(fd);
 
-    printf("create cfs file called. [%s]\n", name);
     return fd;
 }
 
@@ -66,7 +73,6 @@ int cfs_delete_file(char* name){
         return -1;
     }
 
-    printf("delete cfs file called. [%s]\n", name);
     return 0;
 }
 
@@ -77,7 +83,6 @@ int cfs_create_dir(char* name){
         return -1;
     }
     cfs_closedir(dirp);
-    printf("create cfs dir called. [%s]\n", name);
     return 0;
 }
 
@@ -87,9 +92,30 @@ int cfs_delete_dir(char* name){
         return -1;
     }
 
-    printf("delete directory called. [%s]\n", name);
     return 0;
 }
+
+int cfs_open_get_fd(char* name){
+    return cfs_open(name, CFS_READ | CFS_APPEND);
+}
+
+int cfs_write_at(int fd, int start_pos, int bytes, char* buf){
+    cfs_seek(fd, start_pos, CFS_SEEK_SET);
+    cfs_write(fd, buf, sizeof(buf));
+    return 0;
+}
+
+int cfs_read_at(int fd, int start_pos, int bytes, char* buf){
+    cfs_seek(fd, start_pos, CFS_SEEK_SET);
+    cfs_read(fd, buf, sizeof(buf));
+    return 0;
+}
+
+int cfs_close_fd(int fd){
+    cfs_close(fd);
+    return 0;
+}
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 Other Functions
@@ -102,7 +128,16 @@ init_api is calle when the program starts. this is where we call the API
 constructors for defined filesystems
 */
 void init_api(){
-    CFS = new_api(cfs_create_file, cfs_delete_file, cfs_create_dir, cfs_delete_dir);
+    CFS = new_api(
+        cfs_create_file, 
+        cfs_delete_file, 
+        cfs_create_dir, 
+        cfs_delete_dir,
+        cfs_open_get_fd,
+        cfs_write_at,
+        cfs_read_at,
+        cfs_close_fd
+        );
 }
 
 /*

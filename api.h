@@ -31,13 +31,21 @@ struct API{
     int (*delete_file)(char*);
     int (*create_dir)(char*);
     int (*delete_dir)(char*);
+    int (*open_get_fd)(char*);
+    int (*write_at)(int, int, int, char*);
+    int (*read_at)(int, int, int, char*);
+    int (*close_fd)(int);
 };
 
 struct API* new_api(
     int(*create_f)(char*), 
     int(*delete_f)(char*), 
     int(*create_d)(char*),
-    int(*delete_d)(char*)
+    int(*delete_d)(char*),
+    int (*open_get_fd)(char*),
+    int (*write_at)(int, int, int, char*),
+    int (*read_at)(int, int, int, char*),
+    int (*close_fd)(int)
 );
 
 void free_api(struct API*);

@@ -11,6 +11,8 @@ descriptions are in the c file.
 #define TRUE 1
 #define FALSE 0
 
+extern const int DEBUGGING_ENABLED;
+
 void log_info(char*);
 void log_error(char*);
 void check(int err, char* msg, int fatal);
