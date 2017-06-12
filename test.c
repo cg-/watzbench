@@ -57,7 +57,8 @@ struct TestParams* new_test_params(){
 }
 
 /*
-free_test is a destructor for the Test struct
+free_test is a destructor for the Test structextern struct Test* FileMetaDataCreate;
+extern struct Test* FileMetaDataDelete;
 */
 void free_test_params(struct TestParams* params){
     if(params->buffer != NULL){
@@ -89,10 +90,10 @@ Tests
 The functions below define the various benchmarks WatzBench supports
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+/// MICROBENCHMARKS
 // FILE METADATA
-// creates a large number of files
 
-// CREATE FILES
+// CREATE FILE
 int file_metadata_create_test_prepare(struct Test* test){
     test->params = new_test_params();
     test->params->count = MAX_FILES;
@@ -147,9 +148,20 @@ int file_metadata_delete_test_cleanup(struct Test* test){
     return 0;
 }
 
+// OPEN FILE
+int file_metadata_open_test_prepare(struct Test* test){
+    return 0;
+}
+int file_metadata_open_test_run(struct Test* test){
+    return 0;
+}
+int file_metadata_open_test_cleanup(struct Test* test){
+    return 0;
+}
+
 // THROUGHPUT
 // SEQ READS
-int throughout_seq_read_prepare(struct Test* test){
+int throughput_seq_read_prepare(struct Test* test){
     test->params = new_test_params();
     test->params->filename = "WATZ";
     void* t = malloc(sizeof(char)*MAX_WRITE_BYTES);
@@ -160,12 +172,12 @@ int throughout_seq_read_prepare(struct Test* test){
     return 0;
 }
 
-int throughout_seq_read_run(struct Test* test){
+int throughput_seq_read_run(struct Test* test){
     test->api->read_at(test->params->fd, 0, sizeof(test->params->buffer), test->params->buffer);
     return 0;
 }
 
-int throughout_seq_read_cleanup(struct Test* test){
+int throughput_seq_read_cleanup(struct Test* test){
     test->api->close_fd(test->params->fd);
     test->api->delete_file(test->params->filename);
     free_test_params(test->params);
@@ -173,36 +185,212 @@ int throughout_seq_read_cleanup(struct Test* test){
     return 0;
 }
 
+// SEQ wRITE
+int throughput_seq_write_prepare(struct Test* test){
+    return 0;
+}
+int throughput_seq_write_run(struct Test* test){
+    return 0;
+}
+int throughput_seq_write_cleanup(struct Test* test){
+    return 0;
+}
+
+// RAND READ
+int throughput_rand_read_prepare(struct Test* test){
+    return 0;
+}
+int throughput_rand_read_run(struct Test* test){
+    return 0;
+}
+int throughput_rand_read_cleanup(struct Test* test){
+    return 0;
+}
+
+// RAND WRITE
+int throughput_rand_write_prepare(struct Test* test){
+    return 0;
+}
+int throughput_rand_write_run(struct Test* test){
+    return 0;
+}
+int throughput_rand_write_cleanup(struct Test* test){
+    return 0;
+}
+
+/// MACROBENCHMARKS
+// Archival Storage
+int macrobenchmark_archival_prepare(struct Test* test){
+    return 0;
+}
+int macrobenchmark_archival_run(struct Test* test){
+    return 0;
+}
+int macrobenchmark_archival_cleanup(struct Test* test){
+    return 0;
+}
+
+// Archival Storage And Query
+int macrobenchmark_archival_query_prepare(struct Test* test){
+    return 0;
+}
+int macrobenchmark_archival_query_run(struct Test* test){
+    return 0;
+}
+int macrobenchmark_archival_query_cleanup(struct Test* test){
+    return 0;
+}
+
+// Signal Processing
+int macrobenchmark_signal_prepare(struct Test* test){
+    return 0;
+}
+int macrobenchmark_signal_run(struct Test* test){
+    return 0;
+}
+int macrobenchmark_signal_cleanup(struct Test* test){
+    return 0;
+}
+
+// Network Routing
+int macrobenchmark_network_prepare(struct Test* test){
+    return 0;
+}
+int macrobenchmark_network_run(struct Test* test){
+    return 0;
+}
+int macrobenchmark_network_cleanup(struct Test* test){
+    return 0;
+}
+
+// Debugging Logs
+int macrobenchmark_debugging_prepare(struct Test* test){
+    return 0;
+}
+int macrobenchmark_debugging_run(struct Test* test){
+    return 0;
+}
+int macrobenchmark_debugging_cleanup(struct Test* test){
+    return 0;
+}
+
+// Calibration
+int macrobenchmark_calibration_prepare(struct Test* test){
+    return 0;
+}
+int macrobenchmark_calibration_run(struct Test* test){
+    return 0;
+}
+int macrobenchmark_calibration_cleanup(struct Test* test){
+    return 0;
+}
+
+
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 Other Functions
 
 The functions below are other misc functions needed by the testing framework
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+// Microbenchmarks
 struct Test* FileMetaDataCreate;
 struct Test* FileMetaDataDelete;
 struct Test* ThroughputSeqRead;
+struct Test* FileMetaDataOpen;
+struct Test* ThroughputSeqWrite;
+struct Test* ThroughputRandRead;
+struct Test* ThroughputRandWrite;
+// Macrobenchmarks
+struct Test* ArchivalStorage;
+struct Test* ArchivalStorageAndQuery;
+struct Test* SignalProcessing;
+struct Test* NetworkRouting;
+struct Test* DebuggingLogs;
+struct Test* Calibration;
 
 /*
 init_test is called when the program starts.
+
+todo: make these only be created depending on tests
+being run...
 */
 void init_test(){
     FileMetaDataCreate= new_test(
-        "File Metadata Create File Test",
+        "Metadata Test - Create Files",
         file_metadata_create_test_prepare,
         file_metadata_create_test_run,
         file_metadata_create_test_cleanup
     );
     FileMetaDataDelete= new_test(
-        "File Metadata Delete File Test",
+        "Metadata Test - Delete Files",
         file_metadata_delete_test_prepare,
         file_metadata_delete_test_run,
         file_metadata_delete_test_cleanup
     );
+    FileMetaDataOpen= new_test(
+        "Metadata Test - Open Files",
+        file_metadata_open_test_prepare,
+        file_metadata_open_test_run,
+        file_metadata_open_test_cleanup
+    );
     ThroughputSeqRead= new_test(
-        "Throughput Sequential Read Test",
-        throughout_seq_read_prepare,
-        throughout_seq_read_run,
-        throughout_seq_read_cleanup
+        "Throughput Test - Sequential Read",
+        throughput_seq_read_prepare,
+        throughput_seq_read_run,
+        throughput_seq_read_cleanup
+    );
+    ThroughputSeqWrite= new_test(
+        "Throughput Test - Sequential Write",
+        throughput_seq_write_prepare,
+        throughput_seq_write_run,
+        throughput_seq_write_cleanup
+    );
+    ThroughputRandRead= new_test(
+        "Throughput Test - Random Read",
+        throughput_rand_read_prepare,
+        throughput_rand_read_run,
+        throughput_rand_read_cleanup
+    );
+    ThroughputRandWrite= new_test(
+        "Throughput Test - Random Write",
+        throughput_rand_write_prepare,
+        throughput_rand_write_run,
+        throughput_rand_write_cleanup
+    );
+    ArchivalStorage= new_test(
+        "Macrobench - Archival Storage",
+        macrobenchmark_archival_prepare,
+        macrobenchmark_archival_run,
+        macrobenchmark_archival_cleanup
+    );
+    ArchivalStorageAndQuery= new_test(
+        "Macrobench - Archival Storage And Query",
+        macrobenchmark_archival_query_prepare,
+        macrobenchmark_archival_query_run,
+        macrobenchmark_archival_query_cleanup
+    );
+    SignalProcessing= new_test(
+        "Macrobench - Signal Processing",
+        macrobenchmark_signal_prepare,
+        macrobenchmark_signal_run,
+        macrobenchmark_signal_cleanup
+    );
+    NetworkRouting= new_test(
+        "Macrobench - Network Routing",
+        macrobenchmark_network_prepare,
+        macrobenchmark_network_run,
+        macrobenchmark_network_cleanup
+    );
+    DebuggingLogs= new_test(
+        "Macrobench - Debugging Logs",
+        macrobenchmark_debugging_prepare,
+        macrobenchmark_debugging_run,
+        macrobenchmark_debugging_cleanup
+    );
+    Calibration= new_test(
+        "Macrobench - Calibration",
+        macrobenchmark_calibration_prepare,
+        macrobenchmark_calibration_run,
+        macrobenchmark_calibration_cleanup
     );
     return;
 }
@@ -213,6 +401,16 @@ cleanup_test is called before the program exits
 void cleanup_test(){
     free_test(FileMetaDataCreate);
     free_test(FileMetaDataDelete);
+    free_test(FileMetaDataOpen);
     free_test(ThroughputSeqRead);
+    free_test(ThroughputSeqWrite);
+    free_test(ThroughputRandRead);
+    free_test(ThroughputRandWrite);
+    free_test(ArchivalStorage);
+    free_test(ArchivalStorageAndQuery);
+    free_test(SignalProcessing);
+    free_test(NetworkRouting);
+    free_test(DebuggingLogs);
+    free_test(Calibration);
     return;
 }

@@ -42,12 +42,10 @@ PROCESS_THREAD(watzbench_process, ev, data) {
     printf("Important Device Information:\n");
     printf("1 second = %lu ticks.\n\n", CLOCK_SECOND);
 
-
     for(int i = 0; i < 100; i++){
-        run_test(CFS, FileMetaDataCreate);
+        run_test(Coffee, FileMetaDataCreate);
         printf("start: %u, stop: %u, time: %u\n", (uint)FileMetaDataCreate->start_time,(uint)FileMetaDataCreate->completion_time,((uint)FileMetaDataCreate->completion_time - (uint)FileMetaDataCreate->start_time));
     }
-
 
     cleanup();
     PROCESS_END();

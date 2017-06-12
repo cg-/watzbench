@@ -10,9 +10,23 @@ additional information is available in the c file.
 #include "common.h"
 #include "contiki.h"
 
+// Microbenchmarks
 extern struct Test* FileMetaDataCreate;
 extern struct Test* FileMetaDataDelete;
+extern struct Test* FileMetaDataOpen;
 extern struct Test* ThroughputSeqRead;
+extern struct Test* ThroughputSeqWrite;
+extern struct Test* ThroughputRandRead;
+extern struct Test* ThroughputRandWrite;
+
+// Macrobenchmarks
+extern struct Test* ArchivalStorage;
+extern struct Test* ArchivalStorageAndQuery;
+extern struct Test* SignalProcessing;
+extern struct Test* NetworkRouting;
+extern struct Test* DebuggingLogs;
+extern struct Test* Calibration;
+
 extern const int MAX_FILES;
 extern const int MAX_FILENAME_SIZE;
 extern const int MAX_WRITE_BYTES;
