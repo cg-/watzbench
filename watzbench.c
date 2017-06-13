@@ -15,9 +15,15 @@ UCSC - CMPE259 - Spring 2017 - Cole Grim
 #include "test.h"
 #include "common.h"
 
-const int MAX_FILES = 100; // The maximum number of files to create
+// Testing Parameters
+const int FILES_TO_CREATE = 100; // The maximum number of files to create
 const int MAX_FILENAME_SIZE = 10; // Max number of characters in a filename (size of buffer)
-const int MAX_WRITE_BYTES = 4096; // Max filesize to write
+const int WRITE_BYTES = 4096; // Max filesize to write
+const int RAND_READ_SIZE = 128; // Max filesize to write
+const int RAND_WRITE_SIZE = 128; // Max filesize to write
+const int WRITE_BUFFER = 128;
+
+// Program Options
 const int DEBUGGING_ENABLED = 1; // Debugging messages
 
 void init(){
@@ -42,11 +48,33 @@ PROCESS_THREAD(watzbench_process, ev, data) {
     printf("Important Device Information:\n");
     printf("1 second = %lu ticks.\n\n", CLOCK_SECOND);
 
-    for(int i = 0; i < 100; i++){
-        run_test(Coffee, FileMetaDataCreate);
-        printf("start: %u, stop: %u, time: %u\n", (uint)FileMetaDataCreate->start_time,(uint)FileMetaDataCreate->completion_time,((uint)FileMetaDataCreate->completion_time - (uint)FileMetaDataCreate->start_time));
+    // Verification
+    for(int i = 0;i < 10;i++){
+    run_test(Coffee, VerifyModifySub);
     }
+    run_test(Coffee, VerifyOpenUncached);
+        run_test(Coffee, VerifyOpenCached);
 
+    // Microbenchmarks
+    /*
+    run_test(Coffee, FileMetaDataCreate);
+    run_test(Coffee, FileMetaDataDelete);
+    run_test(Coffee, FileMetaDataOpen);
+    run_test(Coffee, ThroughputSeqRead);
+    run_test(Coffee, ThroughputSeqWrite);
+    run_test(Coffee, ThroughputRandRead);
+    run_test(Coffee, ThroughputRandWrite);
+    */
+
+    /*
+    // Macrobenchmarks
+    run_test(Coffee, ArchivalStorage);
+    run_test(Coffee, ArchivalStorageAndQuery);
+    run_test(Coffee, SignalProcessing);
+    run_test(Coffee, NetworkRouting);
+    run_test(Coffee, DebuggingLogs);
+    run_test(Coffee, Calibration);
+    */
     cleanup();
     PROCESS_END();
 }

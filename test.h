@@ -9,6 +9,13 @@ additional information is available in the c file.
 #include "api.h"
 #include "common.h"
 #include "contiki.h"
+#include "lib/random.h"
+
+// Verification
+extern struct Test* VerifyOpenUncached;
+extern struct Test* VerifyModifyInitial;
+extern struct Test* VerifyModifySub;
+extern struct Test* VerifyOpenCached;
 
 // Microbenchmarks
 extern struct Test* FileMetaDataCreate;
@@ -27,9 +34,12 @@ extern struct Test* NetworkRouting;
 extern struct Test* DebuggingLogs;
 extern struct Test* Calibration;
 
-extern const int MAX_FILES;
+extern const int FILES_TO_CREATE;
 extern const int MAX_FILENAME_SIZE;
-extern const int MAX_WRITE_BYTES;
+extern const int WRITE_BYTES;
+extern const int RAND_READ_SIZE;
+extern const int RAND_WRITE_SIZE;
+extern const int WRITE_BUFFER;
 
 /*
 Test is a struct that represents the various parts of a benchmarking
@@ -71,6 +81,7 @@ struct TestParams{
     char* buffer;
     int count;
     int fd;
+    int* fds;
     int* sizes;
     int* rands;
 };

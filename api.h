@@ -14,6 +14,8 @@ additional information and descriptions are in the c file
 #include <cfs/cfs.h>
 #include <cfs/cfs-coffee.h>
 
+#include "common.h"
+
 /*
 supported filesystems
 
