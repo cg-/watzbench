@@ -82,14 +82,21 @@ void run_test(struct API* api_ptr, struct Test* test){
     test->api->init();
     int err = test->prepare(test);
     check(err, "error in prepare function", TRUE);
+    if (POWER_TESTS == 1){
+        powertrace_start(CLOCK_SECOND * 9999);
+    }
     test->start_time = clock_time();
     err = test->run(test);
     test->completion_time = clock_time();
+    if (POWER_TESTS == 1){
+        powertrace_stop();
+        powertrace_print("");
+    }
     check(err, "error in test function", TRUE);
     err = test->teardown(test);
     check(err, "error in teardown function", TRUE);
     test->api = NULL;
-    printf("test: %s, start: %u, stop: %u, time: %u\n", test->name,(uint)test->start_time,(uint)test->completion_time,((uint)test->completion_time - (uint)test->start_time));
+    printf("%u\n", ((uint)test->completion_time - (uint)test->start_time));
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -165,6 +172,9 @@ int verification_initial_modify_prepare(struct Test* test){
 
     void* t = malloc(WRITE_BYTES);
     test->params->buffer = (char*)t;
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
+    }
 
     test->params->count = FILES_TO_CREATE;
     char filename[MAX_FILENAME_SIZE];
@@ -174,12 +184,12 @@ int verification_initial_modify_prepare(struct Test* test){
         int fd = test->api->open_get_fd(test->params->filename);
         int at = 0;
         while(at < WRITE_BYTES){
-            if(WRITE_BYTES - at < WRITE_BUFFER){
+            if(WRITE_BYTES - at < BUFFER){
                 test->api->write_at(fd, 0, WRITE_BYTES - at, test->params->buffer);
                 at = WRITE_BYTES;
             }else{
-                test->api->write_at(fd, 0, WRITE_BUFFER, test->params->buffer);
-                at += WRITE_BUFFER;
+                test->api->write_at(fd, 0, BUFFER, test->params->buffer);
+                at += BUFFER;
             }
         }
         test->api->close_fd(fd);
@@ -189,12 +199,12 @@ int verification_initial_modify_prepare(struct Test* test){
     test->params->fd = test->api->open_get_fd("WATZ");
     int at = 0;
     while(at < WRITE_BYTES){
-        if(WRITE_BYTES - at < WRITE_BUFFER){
+        if(WRITE_BYTES - at < BUFFER){
             test->api->write_at(test->params->fd, 0, WRITE_BYTES - at, test->params->buffer);
             at = WRITE_BYTES;
         }else{
-            test->api->write_at(test->params->fd, 0, WRITE_BUFFER, test->params->buffer);
-            at += WRITE_BUFFER;
+            test->api->write_at(test->params->fd, 0, BUFFER, test->params->buffer);
+            at += BUFFER;
         }
     }
     test->api->close_fd(test->params->fd);
@@ -205,12 +215,12 @@ int verification_initial_modify_prepare(struct Test* test){
 int verification_initial_modify_run(struct Test* test){
     int at = 0;
     while(at < WRITE_BYTES){
-        if(WRITE_BYTES - at < WRITE_BUFFER){
+        if(WRITE_BYTES - at < BUFFER){
             test->api->write_at(test->params->fd, 0, WRITE_BYTES - at, test->params->buffer);
             at = WRITE_BYTES;
         }else{
-            test->api->write_at(test->params->fd, 0, WRITE_BUFFER, test->params->buffer);
-            at += WRITE_BUFFER;
+            test->api->write_at(test->params->fd, 0, BUFFER, test->params->buffer);
+            at += BUFFER;
         }
     }
     return 0;
@@ -234,6 +244,9 @@ int verification_sub_modify_prepare(struct Test* test){
 
     void* t = malloc(WRITE_BYTES);
     test->params->buffer = (char*)t;
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
+    }
 
     test->params->count = FILES_TO_CREATE;
     char filename[MAX_FILENAME_SIZE];
@@ -243,12 +256,12 @@ int verification_sub_modify_prepare(struct Test* test){
         int fd = test->api->open_get_fd(test->params->filename);
         int at = 0;
         while(at < WRITE_BYTES){
-            if(WRITE_BYTES - at < WRITE_BUFFER){
+            if(WRITE_BYTES - at < BUFFER){
                 test->api->write_at(fd, 0, WRITE_BYTES - at, test->params->buffer);
                 at = WRITE_BYTES;
             }else{
-                test->api->write_at(fd, 0, WRITE_BUFFER, test->params->buffer);
-                at += WRITE_BUFFER;
+                test->api->write_at(fd, 0, BUFFER, test->params->buffer);
+                at += BUFFER;
             }
         }
         test->api->close_fd(fd);
@@ -258,24 +271,24 @@ int verification_sub_modify_prepare(struct Test* test){
     test->params->fd = test->api->open_get_fd("WATZ");
     int at = 0;
     while(at < WRITE_BYTES){
-        if(WRITE_BYTES - at < WRITE_BUFFER){
+        if(WRITE_BYTES - at < BUFFER){
             test->api->write_at(test->params->fd, 0, WRITE_BYTES - at, test->params->buffer);
             at = WRITE_BYTES;
         }else{
-            test->api->write_at(test->params->fd, 0, WRITE_BUFFER, test->params->buffer);
-            at += WRITE_BUFFER;
+            test->api->write_at(test->params->fd, 0, BUFFER, test->params->buffer);
+            at += BUFFER;
         }
     }
     test->api->close_fd(test->params->fd);
     test->params->fd = test->api->open_get_fd("WATZ");
     at = 0;
     while(at < WRITE_BYTES){
-        if(WRITE_BYTES - at < WRITE_BUFFER){
+        if(WRITE_BYTES - at < BUFFER){
             test->api->write_at(test->params->fd, WRITE_BYTES, WRITE_BYTES - at, test->params->buffer);
             at = WRITE_BYTES;
         }else{
-            test->api->write_at(test->params->fd, WRITE_BYTES, WRITE_BUFFER, test->params->buffer);
-            at += WRITE_BUFFER;
+            test->api->write_at(test->params->fd, WRITE_BYTES, BUFFER, test->params->buffer);
+            at += BUFFER;
         }
     }
     test->api->close_fd(test->params->fd);
@@ -286,12 +299,12 @@ int verification_sub_modify_prepare(struct Test* test){
 int verification_sub_modify_run(struct Test* test){
     int at = 0;
     while(at < WRITE_BYTES){
-        if(WRITE_BYTES - at < WRITE_BUFFER){
+        if(WRITE_BYTES - at < BUFFER){
             test->api->write_at(test->params->fd, 0, WRITE_BYTES - at, test->params->buffer);
             at = WRITE_BYTES;
         }else{
-            test->api->write_at(test->params->fd, 0, WRITE_BUFFER, test->params->buffer);
-            at += WRITE_BUFFER;
+            test->api->write_at(test->params->fd, 0, BUFFER, test->params->buffer);
+            at += BUFFER;
         }
     }
     return 0;
@@ -409,6 +422,9 @@ int throughput_seq_read_prepare(struct Test* test){
     test->params->count = FILES_TO_CREATE;
     void* t = malloc(WRITE_BYTES);
     test->params->buffer = (char*)t;
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
+    }
     test->api->create_file(test->params->filename);
     test->params->fd = test->api->open_get_fd(test->params->filename);
     test->api->write_at(test->params->fd, 0, WRITE_BYTES, test->params->buffer);
@@ -417,7 +433,16 @@ int throughput_seq_read_prepare(struct Test* test){
 
 int throughput_seq_read_run(struct Test* test){
     for(int i = 0; i < test->params->count; i++){
-        test->api->read_at(test->params->fd, 0, WRITE_BYTES, test->params->buffer);
+        int at = 0;
+        while(at < WRITE_BYTES){
+            if((WRITE_BYTES - at) < BUFFER){
+                test->api->read_at(test->params->fd, at, WRITE_BYTES - at, test->params->buffer);
+                at = WRITE_BYTES;
+            }else{
+                test->api->read_at(test->params->fd, at, BUFFER, test->params->buffer);
+                at += BUFFER;
+            }
+        }
     }
     return 0;
 }
@@ -437,6 +462,9 @@ int throughput_seq_write_prepare(struct Test* test){
     test->params->count = FILES_TO_CREATE;
     void* t = malloc(WRITE_BYTES);
     test->params->buffer = (char*)t;
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
+    }
     test->api->create_file(test->params->filename);
     test->params->fd = test->api->open_get_fd(test->params->filename);
     return 0;
@@ -444,7 +472,16 @@ int throughput_seq_write_prepare(struct Test* test){
 
 int throughput_seq_write_run(struct Test* test){
     for(int i = 0; i < test->params->count; i++){
-        test->api->write_at(test->params->fd, 0, WRITE_BYTES, test->params->buffer);
+        int at = 0;
+        while(at < WRITE_BYTES){
+            if((WRITE_BYTES - at) < BUFFER){
+                test->api->write_at(test->params->fd, at, WRITE_BYTES - at, test->params->buffer);
+                at = WRITE_BYTES;
+            }else{
+                test->api->write_at(test->params->fd, at, BUFFER, test->params->buffer);
+                at += BUFFER;
+            }
+        }
     }
     return 0;
 }
@@ -461,20 +498,24 @@ int throughput_rand_read_prepare(struct Test* test){
     test->params = new_test_params();
     test->params->filename = "WATZ";
     test->params->count = FILES_TO_CREATE;
-    void* t = malloc(sizeof(int)*FILES_TO_CREATE);
-    test->params->rands = (int*)t;
-    t = malloc(sizeof(char)*WRITE_BYTES);
+    void* t = malloc(sizeof(char)*WRITE_BYTES);
     test->params->buffer = (char*)t;
-    for(int i = 0; i < test->params->count; i++){
-        test->params->rands[i] = (random_rand() % WRITE_BYTES);
-    }
     test->api->create_file(test->params->filename);
     test->params->fd = test->api->open_get_fd(test->params->filename);
     return 0;
 }
 int throughput_rand_read_run(struct Test* test){
     for(int i = 0; i < test->params->count; i++){
-        test->api->read_at(test->params->fd, test->params->rands[i], RAND_READ_SIZE, test->params->buffer);
+        int at = 0;
+        while(at < WRITE_BYTES){
+            if((WRITE_BYTES - at) < BUFFER){
+                test->api->read_at(test->params->fd, random_rand() % (WRITE_BYTES - BUFFER), WRITE_BYTES - at, test->params->buffer);
+                at = WRITE_BYTES;
+            }else{
+                test->api->read_at(test->params->fd, random_rand() % (WRITE_BYTES - BUFFER), BUFFER, test->params->buffer);
+                at += BUFFER;
+            }
+        }
     }
     return 0;
 }
@@ -491,12 +532,10 @@ int throughput_rand_write_prepare(struct Test* test){
     test->params = new_test_params();
     test->params->filename = "WATZ";
     test->params->count = FILES_TO_CREATE;
-    void* t = malloc(sizeof(int)*FILES_TO_CREATE);
-    test->params->rands = (int*)t;
-    t = malloc(sizeof(char)*RAND_WRITE_SIZE);
+    void* t = malloc(sizeof(char)*BUFFER);
     test->params->buffer = (char*)t;
-    for(int i = 0; i < test->params->count; i++){
-        test->params->rands[i] = (random_rand() % WRITE_BYTES);
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
     }
     test->api->create_file(test->params->filename);
     test->params->fd = test->api->open_get_fd(test->params->filename);
@@ -504,7 +543,16 @@ int throughput_rand_write_prepare(struct Test* test){
 }
 int throughput_rand_write_run(struct Test* test){
     for(int i = 0; i < test->params->count; i++){
-        test->api->write_at(test->params->fd, test->params->rands[i], RAND_WRITE_SIZE, test->params->buffer);
+        int at = 0;
+        while(at < WRITE_BYTES){
+            if((WRITE_BYTES - at) < BUFFER){
+                test->api->write_at(test->params->fd, (random_rand() % (WRITE_BYTES - BUFFER)), WRITE_BYTES - at, test->params->buffer);
+                at = WRITE_BYTES;
+            }else{
+                test->api->write_at(test->params->fd, (random_rand() % (WRITE_BYTES - BUFFER)), BUFFER, test->params->buffer);
+                at += BUFFER;
+            }
+        }
     }
     return 0;
 }
@@ -518,23 +566,109 @@ int throughput_rand_write_cleanup(struct Test* test){
 /// MACROBENCHMARKS
 // Archival Storage
 int macrobenchmark_archival_prepare(struct Test* test){
+    test->params = new_test_params();
+    void* t = malloc(WRITE_BYTES);
+    test->params->buffer = (char*)t;
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
+    }
     return 0;
 }
+
 int macrobenchmark_archival_run(struct Test* test){
+    char filename[MAX_FILENAME_SIZE];
+    for(int hour = 0; hour < 24; hour++){
+        sprintf(filename, "%d", hour);
+        test->api->create_file(filename);
+        int total_at = 0;
+        for(int min = 0; min < 60; min++){
+            int fd = test->api->open_get_fd(filename);
+            int at = 0;
+            while(at < WRITE_BYTES){
+                if(WRITE_BYTES - at < BUFFER){
+                    test->api->write_at(fd, total_at, WRITE_BYTES - at, test->params->buffer);
+                    total_at += (WRITE_BYTES - at);
+                    at = WRITE_BYTES;
+                }else{
+                    test->api->write_at(fd, total_at, BUFFER, test->params->buffer);
+                    at += BUFFER;
+                    total_at += BUFFER;
+                }
+            }
+            test->api->close_fd(fd);
+        }
+    }
     return 0;
 }
 int macrobenchmark_archival_cleanup(struct Test* test){
+    char filename[MAX_FILENAME_SIZE];
+    for(int hour = 0; hour < 24; hour++){
+        sprintf(filename, "%d", hour);
+        test->api->delete_file(filename);
+    }
+    free_test_params(test->params);
     return 0;
 }
 
 // Archival Storage And Query
 int macrobenchmark_archival_query_prepare(struct Test* test){
+    test->params = new_test_params();
+    void* t = malloc(WRITE_BYTES);
+    test->params->buffer = (char*)t;
+    for(int i = 0; i < WRITE_BYTES; i++){
+        test->params->buffer[i] = 'a';
+    }
     return 0;
 }
+
 int macrobenchmark_archival_query_run(struct Test* test){
+    char filename[MAX_FILENAME_SIZE];
+    for(int hour = 0; hour < 24; hour++){
+        sprintf(filename, "%d", hour);
+        test->api->create_file(filename);
+        int total_at = 0;
+        for(int min = 0; min < 60; min++){
+            int fd = test->api->open_get_fd(filename);
+            int at = 0;
+            while(at < WRITE_BYTES){
+                if(WRITE_BYTES - at < BUFFER){
+                    test->api->write_at(fd, total_at, WRITE_BYTES - at, test->params->buffer);
+                    total_at += (WRITE_BYTES - at);
+                    at = WRITE_BYTES;
+                }else{
+                    test->api->write_at(fd, total_at, BUFFER, test->params->buffer);
+                    at += BUFFER;
+                    total_at += BUFFER;
+                }
+            }
+            test->api->close_fd(fd);
+        }
+        if(hour % 4 == 0){
+            int fd = test->api->open_get_fd(filename);
+            int at = 0;
+            for(int j =0;j<4;j++){
+                while(at < WRITE_BYTES){
+                    if(WRITE_BYTES - at < BUFFER){
+                        test->api->read_at(fd, 0, WRITE_BYTES - at, test->params->buffer);
+                        at = WRITE_BYTES;
+                    }else{
+                        test->api->read_at(fd, 0, BUFFER, test->params->buffer);
+                        at += BUFFER;
+                    }
+                }
+            }
+        }
+    }
     return 0;
 }
+
 int macrobenchmark_archival_query_cleanup(struct Test* test){
+    char filename[MAX_FILENAME_SIZE];
+    for(int mon = 0; mon < 12; mon++){
+        sprintf(filename, "%d", mon);
+        test->api->delete_file(filename);
+    }
+    free_test_params(test->params);
     return 0;
 }
 
@@ -591,6 +725,7 @@ The functions below are other misc functions needed by the testing framework
 // Verification Tests
 struct Test* VerifyOpenUncached;
 struct Test* VerifyModifyInitial;
+struct Test* VerifyModifySub;
 struct Test* VerifyOpenCached;
 // Microbenchmarks
 struct Test* FileMetaDataCreate;

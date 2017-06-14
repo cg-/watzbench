@@ -10,6 +10,7 @@ additional information is available in the c file.
 #include "common.h"
 #include "contiki.h"
 #include "lib/random.h"
+#include "powertrace.h"
 
 // Verification
 extern struct Test* VerifyOpenUncached;
@@ -36,10 +37,9 @@ extern struct Test* Calibration;
 
 extern const int FILES_TO_CREATE;
 extern const int MAX_FILENAME_SIZE;
-extern const int WRITE_BYTES;
-extern const int RAND_READ_SIZE;
-extern const int RAND_WRITE_SIZE;
-extern const int WRITE_BUFFER;
+extern int WRITE_BYTES;
+extern int BUFFER;
+extern const int POWER_TESTS;
 
 /*
 Test is a struct that represents the various parts of a benchmarking

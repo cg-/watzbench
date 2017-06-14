@@ -107,13 +107,13 @@ int cfs_open_get_fd(char* name){
 
 int cfs_write_at(int fd, int start_pos, int bytes, char* buf){
     cfs_seek(fd, start_pos, CFS_SEEK_SET);
-    cfs_write(fd, buf, sizeof(buf));
+    cfs_write(fd, buf, bytes);
     return 0;
 }
 
 int cfs_read_at(int fd, int start_pos, int bytes, char* buf){
     cfs_seek(fd, start_pos, CFS_SEEK_SET);
-    cfs_read(fd, buf, sizeof(buf));
+    cfs_read(fd, buf, bytes);
     return 0;
 }
 
@@ -175,22 +175,18 @@ int coffee_delete_dir(char* name){
 
 int coffee_open_get_fd(char* name){
     //log_info("open called.");
-    return cfs_open(name, CFS_READ | CFS_APPEND);
+    return cfs_open(name, CFS_READ | CFS_WRITE | CFS_APPEND);
 }
 
 int coffee_write_at(int fd, int start_pos, int bytes, char* buf){
-    //log_info("write at called.");
-    //printf("write of size: %d@%d\n", bytes, start_pos);
     cfs_seek(fd, start_pos, CFS_SEEK_SET);
-    cfs_write(fd, buf, sizeof(buf));
+    cfs_write(fd, buf, bytes);
     return 0;
 }
 
 int coffee_read_at(int fd, int start_pos, int bytes, char* buf){
-    //log_info("read at called.");
-    //printf("read of size: %d@%d\n", bytes, start_pos);
     cfs_seek(fd, start_pos, CFS_SEEK_SET);
-    cfs_read(fd, buf, sizeof(buf));
+    cfs_read(fd, buf, bytes);
     return 0;
 }
 

@@ -18,13 +18,12 @@ UCSC - CMPE259 - Spring 2017 - Cole Grim
 // Testing Parameters
 const int FILES_TO_CREATE = 100; // The maximum number of files to create
 const int MAX_FILENAME_SIZE = 10; // Max number of characters in a filename (size of buffer)
-const int WRITE_BYTES = 4096; // Max filesize to write
-const int RAND_READ_SIZE = 128; // Max filesize to write
-const int RAND_WRITE_SIZE = 128; // Max filesize to write
-const int WRITE_BUFFER = 128;
+int WRITE_BYTES = 1024; // Max filesize to write
+int BUFFER = 128;
 
 // Program Options
 const int DEBUGGING_ENABLED = 1; // Debugging messages
+const int POWER_TESTS = 1; // enable or disable power consumption tests
 
 void init(){
     log_info("program starting");
@@ -49,26 +48,125 @@ PROCESS_THREAD(watzbench_process, ev, data) {
     printf("1 second = %lu ticks.\n\n", CLOCK_SECOND);
 
     // Verification
-    for(int i = 0;i < 10;i++){
-    run_test(Coffee, VerifyModifySub);
-    }
-    run_test(Coffee, VerifyOpenUncached);
-        run_test(Coffee, VerifyOpenCached);
-
-    // Microbenchmarks
     /*
-    run_test(Coffee, FileMetaDataCreate);
-    run_test(Coffee, FileMetaDataDelete);
-    run_test(Coffee, FileMetaDataOpen);
-    run_test(Coffee, ThroughputSeqRead);
-    run_test(Coffee, ThroughputSeqWrite);
-    run_test(Coffee, ThroughputRandRead);
-    run_test(Coffee, ThroughputRandWrite);
+    printf("VerifyModifyInitial\n");
+    for(int i = 0;i < 10;i++){
+        run_test(Coffee, VerifyModifyInitial);
+    }
+    printf("VerifyModifySub\n");
+    for(int i = 0;i < 10;i++){
+        run_test(Coffee, VerifyModifySub);
+    }
+    printf("VerifyOpenUncached\n");
+    for(int i = 0;i < 10;i++){
+        run_test(Coffee, VerifyOpenUncached);
+    }
+    printf("VerifyOpenCached\n");
+    for(int i = 0;i < 10;i++){
+        run_test(Coffee, VerifyOpenCached);
+    }
+    */
+
+/*
+    // Microbenchmarks
+    printf("CreateFile\n");
+    for(int i = 0;i < 1;i++){
+        run_test(Coffee, FileMetaDataCreate);
+    }
+    printf("CreateFile\n");
+    for(int i = 0;i < 1;i++){
+        run_test(CFS, FileMetaDataCreate);
+    }
+/*
+
+    printf("DeleteFile\n");
+    for(int i = 0;i < 100;i++){
+        run_test(Coffee, FileMetaDataDelete);
+    }
+
+    printf("OpenFile\n");
+    for(int i = 0;i < 100;i++){
+        run_test(Coffee, FileMetaDataOpen);
+    }
+    */
+    /*
+    int bufsize[] = {16, 32, 64, 128, 256, 512};
+    int filesize[] = {512, 1024};
+
+    for(int bufsizei = 0; bufsizei < 6; bufsizei++){
+        BUFFER = bufsize[bufsizei];
+        printf("Microbenchmarks\n");
+        printf("BUFFER: %d\n", BUFFER);
+        for(int filesizei = 0; filesizei < 2; filesizei++){
+            */
+            //WRITE_BYTES = filesize[filesizei];
+            BUFFER = 128;
+            WRITE_BYTES = 512;
+            printf("BUFFER: %d\n", BUFFER);
+            printf("WRITEBYTES: %d\n", WRITE_BYTES);
+
+            printf("SeqRead\n");
+            for(int i = 0;i < 5;i++){
+                run_test(Coffee, ThroughputSeqRead);
+            }
+
+            printf("SeqWrite\n");
+            for(int i = 0;i < 5;i++){
+                run_test(Coffee, ThroughputSeqWrite);
+            }
+
+            printf("RandRead\n");
+            for(int i = 0;i < 5;i++){
+                run_test(Coffee, ThroughputRandRead);
+            }
+
+            printf("RandWrite\n");
+            for(int i = 0;i < 5;i++){
+                run_test(Coffee, ThroughputRandWrite);
+            }
+            /*
+        }
+    }
     */
 
     /*
+    for(int bufsizei = 0; bufsizei < 6; bufsizei++){
+        BUFFER = bufsize[bufsizei];
+        printf("Macrobenchmarks\n");
+        printf("BUFFER: %d\n", BUFFER);
+        for(int filesizei = 0; filesizei < 2; filesizei++){
+            WRITE_BYTES = filesize[filesizei];
+            printf("WRITEBYTES: %d\n", WRITE_BYTES);
+            BUFFER = 16;
+            WRITE_BYTES = 128;
+            printf("BUFFER: %d\n", BUFFER);
+            printf("WRITEBYTES: %d\n", WRITE_BYTES);
+
+            printf("Archival\n");
+            for(int i = 0;i < 10;i++){
+                run_test(Coffee, ArchivalStorage);
+            }
+
+            printf("Archival Query\n");
+            for(int i = 0;i < 10;i++){
+                run_test(Coffee, ArchivalStorageAndQuery);
+            }
+        }
+    }
+        */
+
+    for(;;){
+        printf("DONE\n");
+        run_test(Coffee, ThroughputRandWrite);
+    }
+
+/*
     // Macrobenchmarks
-    run_test(Coffee, ArchivalStorage);
+    for(int i = 0; i < 10; i++){
+        run_test(CFS, ArchivalStorageAndQuery);
+    }
+*/
+    /*
     run_test(Coffee, ArchivalStorageAndQuery);
     run_test(Coffee, SignalProcessing);
     run_test(Coffee, NetworkRouting);
